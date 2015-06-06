@@ -1,0 +1,27 @@
+{
+    "info": {
+        "indirect_cost": 300
+    },
+    "activities": [
+        [
+            1,
+            2,
+            {
+                "normal_duration": 9,
+                "normal_cost": 8000,
+                "crash_duration": 6,
+                "crash_cost": 9500
+            }
+        ],
+        [
+            2,
+            3,
+            {
+                "normal_duration": 5,
+                "normal_cost": 5000,
+                "crash_duration": 3,
+                "crash_cost": 5500
+            }
+        ]
+    ]
+}
