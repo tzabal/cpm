@@ -99,8 +99,8 @@ def draw_network(graph, pos, output_dir, iteration):
     networkx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
     networkx.draw_networkx(graph, pos=pos, with_labels=False, node_size=3000, node_color='c', node_shape='o')
     matplotlib.pyplot.axis('off')
-    image = output_dir + 'network-' + str(iteration) + '.png'
-    matplotlib.pyplot.savefig(image)
+    image = 'network-' + str(iteration) + '.png'
+    matplotlib.pyplot.savefig(output_dir + image)
     matplotlib.pyplot.close()
     return image
 
