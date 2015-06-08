@@ -22,6 +22,7 @@ import jsonschema
 from mako.template import Template
 import matplotlib.pyplot
 import networkx
+from pkg_resources import resource_filename
 import prettytable
 
 import cpm
@@ -83,7 +84,7 @@ PROJECT_SCHEMA = {
 
 
 def generate_html_report(output_dir, results_table, images):
-    template = Template(filename='templates/report.mako')
+    template = Template(filename=resource_filename(__name__, 'templates/report.mako'))
     report = output_dir + 'report.html'
     with open(report, 'w') as f:
         f.write(template.render(results_table=results_table.get_html_string(), images=images))

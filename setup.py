@@ -31,6 +31,9 @@ setup(
         'Operating System :: POSIX :: BSD :: FreeBSD',
     ],
     packages=['cpm'],
+    package_data = {
+        'cpm': ['templates/*.mako']
+    },
     install_requires=[
         'jsonschema',
         'mako',
