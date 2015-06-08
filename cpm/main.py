@@ -17,6 +17,7 @@ import json
 import os.path
 import pickle
 import sys
+import warnings
 
 import jsonschema
 from mako.template import Template
@@ -91,6 +92,7 @@ def generate_html_report(output_dir, results_table, images):
 
 
 def draw_network(graph, pos, output_dir, iteration):
+    warnings.filterwarnings('ignore')
     node_labels = dict((n, str(str(n) + '(' + str(d['eet']) + ',' + str(d['let']) + ')')) for n, d in graph.nodes(data=True))
     edge_labels = dict([((u, v), graph.edge[u][v]['normal_duration']) for u, v in graph.edges()])
     networkx.draw_networkx_labels(graph, pos, labels=node_labels)
