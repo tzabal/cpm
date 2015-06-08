@@ -82,22 +82,24 @@ PROJECT_SCHEMA = {
 }
 
 
-def generate_html_report(pt, images):
+def generate_html_report(output_dir, results_table, images):
     template = Template(filename='templates/report.mako')
-    with open('report.html', 'w') as f:
-        f.write(template.render(results=pt.get_html_string(format=True), images=images))
+    report = output_dir + 'report.html'
+    with open(report, 'w') as f:
+        f.write(template.render(results_table=results_table.get_html_string(), images=images))
 
 
-def draw_network(graph, pos, iteration):
+def draw_network(graph, pos, output_dir, iteration):
     node_labels = dict((n, str(str(n) + '(' + str(d['eet']) + ',' + str(d['let']) + ')')) for n, d in graph.nodes(data=True))
     edge_labels = dict([((u, v), graph.edge[u][v]['normal_duration']) for u, v in graph.edges()])
     networkx.draw_networkx_labels(graph, pos, labels=node_labels)
     networkx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
     networkx.draw_networkx(graph, pos=pos, with_labels=False, node_size=3000, node_color='c', node_shape='o')
     matplotlib.pyplot.axis('off')
-    matplotlib.pyplot.savefig('iteration-' + str(iteration) + '.png')
+    image = output_dir + 'network-' + str(iteration) + '.png'
+    matplotlib.pyplot.savefig(image)
     matplotlib.pyplot.close()
-    return 'iteration-' + str(iteration) + '.png'
+    return image
 
 
 def _get_project_duration(graph):
@@ -155,10 +157,15 @@ def process_arguments():
     parser = argparse.ArgumentParser(description=description)
     arg_help = 'a file that describes the project in JSON format'
     parser.add_argument('project_file', help=arg_help)
+    arg_help = 'a directory that the results will be placed in'
+    parser.add_argument('-o', '--output-dir', help=arg_help)
 
     arguments = parser.parse_args()
     if not os.path.isfile(arguments.project_file):
         sys.stderr.write('The project_file is not an existing regular file.\n')
+        sys.exit(1)
+    if arguments.output_dir and not os.path.isdir(arguments.output_dir):
+        sys.stderr.write('The output_dir is not an existing directory.\n')
         sys.exit(1)
 
     return arguments
@@ -167,22 +174,23 @@ def process_arguments():
 def main():
     arguments = process_arguments()
     project = validate(arguments.project_file)
+    output_dir = '' if not arguments.output_dir else arguments.output_dir + '/'
 
     cpmnet = cpm.CriticalPathMethod(project)
     cpmnet.run_cpm()
 
     pos = None
     images = []
-    pt = prettytable.PrettyTable(["Project Duration", "Critical Path", "Direct Cost", "Indirect Cost", "Total Cost"])
+    results_table = prettytable.PrettyTable(["Project Duration", "Critical Path", "Direct Cost", "Indirect Cost", "Total Cost"])
     for iteration, snapshot in enumerate(cpmnet.snapshots):
         graph = pickle.loads(snapshot)
         results = collect_results(graph, 'normal_cost')
-        pt.add_row([results['project_duration'], results['critical_path'], results['direct_cost'], results['indirect_cost'], results['total_cost']])
+        results_table.add_row([results['project_duration'], results['critical_path'], results['direct_cost'], results['indirect_cost'], results['total_cost']])
 
         if iteration == 0:
             pos = networkx.fruchterman_reingold_layout(graph)
-        images.append(draw_network(graph, pos, iteration))
-    generate_html_report(pt, images)
+        images.append(draw_network(graph, pos, output_dir, iteration))
+    generate_html_report(output_dir, results_table, images)
 
 
 if __name__ == '__main__':
