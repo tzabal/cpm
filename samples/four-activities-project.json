@@ -1,0 +1,47 @@
+{
+    "info": {
+        "indirect_cost": 2000
+    },
+    "activities": [
+        [
+            1,
+            2,
+            {
+                "normal_duration": 4,
+                "normal_cost": 4000,
+                "crash_duration": 2,
+                "crash_cost": 12000
+            }
+        ],
+        [
+            2,
+            3,
+            {
+                "normal_duration": 5,
+                "normal_cost": 3000,
+                "crash_duration": 2,
+                "crash_cost": 7500
+            }
+        ],
+        [
+            2,
+            4,
+            {
+                "normal_duration": 7,
+                "normal_cost": 3600,
+                "crash_duration": 5,
+                "crash_cost": 6000
+            }
+        ],
+        [
+            3,
+            4,
+            {
+                "normal_duration": 4,
+                "normal_cost": 5000,
+                "crash_duration": 2,
+                "crash_cost": 10000
+            }
+        ]
+    ]
+}

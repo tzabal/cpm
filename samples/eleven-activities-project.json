@@ -1,0 +1,117 @@
+{
+    "info": {
+        "indirect_cost": 4
+    },
+    "activities": [
+        [
+            1,
+            2,
+            {
+                "normal_duration": 15,
+                "normal_cost": 30,
+                "crash_duration": 12,
+                "crash_cost": 39
+            }
+        ],
+        [
+            1,
+            6,
+            {
+                "normal_duration": 20,
+                "normal_cost": 40,
+                "crash_duration": 17,
+                "crash_cost": 49
+            }
+        ],
+        [
+            1,
+            3,
+            {
+                "normal_duration": 15,
+                "normal_cost": 10,
+                "crash_duration": 14,
+                "crash_cost": 15
+            }
+        ],
+        [
+            2,
+            5,
+            {
+                "normal_duration": 5,
+                "normal_cost": 10,
+                "crash_duration": 3,
+                "crash_cost": 20
+            }
+        ],
+        [
+            2,
+            4,
+            {
+                "normal_duration": 3,
+                "normal_cost": 5,
+                "crash_duration": 2,
+                "crash_cost": 16
+            }
+        ],
+        [
+            3,
+            6,
+            {
+                "normal_duration": 7,
+                "normal_cost": 8,
+                "crash_duration": 6,
+                "crash_cost": 10
+            }
+        ],
+        [
+            3,
+            7,
+            {
+                "normal_duration": 17,
+                "normal_cost": 30,
+                "crash_duration": 13,
+                "crash_cost": 38
+            }
+        ],
+        [
+            4,
+            6,
+            {
+                "normal_duration": 8,
+                "normal_cost": 15,
+                "crash_duration": 6,
+                "crash_cost": 25
+            }
+        ],
+        [
+            4,
+            5,
+            {
+                "normal_duration": 0,
+                "normal_cost": 0,
+                "crash_duration": 0,
+                "crash_cost": 0
+            }
+        ],
+        [
+            5,
+            7,
+            {
+                "normal_duration": 16,
+                "normal_cost": 10,
+                "crash_duration": 14,
+                "crash_cost": 12
+            }
+        ],
+        [
+            6,
+            7,
+            {
+                "normal_duration": 12,
+                "normal_cost": 17,
+                "crash_duration": 7,
+                "crash_cost": 35
+            }
+        ]
+    ]
+}
