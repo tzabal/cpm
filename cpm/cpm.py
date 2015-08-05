@@ -12,9 +12,113 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import pickle
+import warnings
 
+import jsonschema
+import matplotlib.pyplot
 import networkx
+
+PROJECT_SCHEMA = {
+    "title": "Project Activities",
+    "description": "The JSON schema of project activities file",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "info": {
+            "type": "object",
+            "properties": {
+                "indirect_cost": {
+                    "type": "integer"
+                }
+            }
+        },
+        "activities": {
+            "type": "array",
+            "minItems": 1,
+            "items": [
+                {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "normal_duration": {
+                                    "type": "integer"
+                                },
+                                "normal_cost": {
+                                    "type": "integer"
+                                },
+                                "crash_duration": {
+                                    "type": "integer"
+                                },
+                                "crash_cost": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["normal_duration", "normal_cost", "crash_duration", "crash_cost"],
+                            "additionalItems": False
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+
+class ProjectValidationException(Exception):
+    pass
+
+
+def validate(project_file):
+    """Validates a project file.
+
+    Args:
+        project_file: a filename or File Object that describes the project in JSON
+
+    Returns:
+        a dictionary, as converted from the project file with the json.load() function
+    """
+    is_filename = False
+    if not hasattr(project_file, 'read'):
+        project_file = open(project_file)
+        is_filename = True
+    try:
+        project = json.load(project_file)
+        jsonschema.validate(project, PROJECT_SCHEMA)
+    except ValueError:
+        raise ProjectValidationException('The project file is not a valid JSON file.')
+    except jsonschema.ValidationError:
+        raise ProjectValidationException('The project file does not comply with the needed JSON schema.')
+    finally:
+        if is_filename:
+            project_file.close()
+    return project
+
+
+def draw_network(graph, pos, images_dir, iteration):
+    warnings.filterwarnings('ignore')
+    node_labels = dict((n, str(str(n) + '(' + str(d['eet']) + ',' + str(d['let']) + ')')) for n, d in graph.nodes(data=True))
+    edge_labels = dict([((u, v), graph.edge[u][v]['normal_duration']) for u, v in graph.edges()])
+    networkx.draw_networkx_labels(graph, pos, labels=node_labels)
+    networkx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
+    networkx.draw_networkx(graph, pos=pos, with_labels=False, node_size=3000, node_color='c', node_shape='o')
+    matplotlib.pyplot.axis('off')
+    image = 'network-' + str(iteration) + '.png'
+    matplotlib.pyplot.savefig(images_dir + image)
+    matplotlib.pyplot.close()
+    return image
 
 
 class CriticalPathMethod(object):
@@ -100,23 +204,20 @@ class CriticalPathMethod(object):
             activity['total_float'] = (self.graph.node[node2]['let'] - self.graph.node[node1]['eet'] -
                                        activity[kw_duration])
 
-    def _get_network_duration(self):
+    def __get_network_duration(self):
         return self.graph.node[self.graph.nodes()[-1]]['let']
 
-    def _reduce_network_duration(self):
-        critical_activities = self.__get_critical_activities()
-        critical_paths = self.__get_critical_paths(critical_activities)
-        for critical_path in critical_paths:
-            critical_path = self.__remove_crashed_activities(critical_path)
-            if len(critical_path) > 0:
-                min_critical_activity = critical_path[0]
-                min_cost_slope = self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['cost_slope']
-                for critical_activity in critical_path[1:]:
-                    if self.graph.edge[critical_activity[0]][critical_activity[1]]['cost_slope'] < min_cost_slope:
-                        min_critical_activity = critical_activity
-                        min_cost_slope = self.graph.edge[critical_activity[0]][critical_activity[1]]['cost_slope']
-                self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['normal_duration'] -= 1
-                self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['normal_cost'] += min_cost_slope
+    def __get_direct_cost(self, kw_cost='normal_cost'):
+        direct_cost = 0
+        for node1, node2 in self.graph.edges():
+            direct_cost += self.graph.edge[node1][node2][kw_cost]
+        return direct_cost
+
+    def __get_indirect_cost(self):
+        return self.__get_network_duration() * self.graph.graph['indirect_cost']
+
+    def __get_total_cost(self):
+        return self.__get_direct_cost() + self.__get_indirect_cost()
 
     def __get_critical_activities(self):
         """Finds all the critical activities of the network.
@@ -141,7 +242,7 @@ class CriticalPathMethod(object):
             critical_activities: a list of tuples, where a tuple represents a critical activity.
 
         Returns:
-            A list of list of tuples.
+            A list of lists of tuples.
         """
         critical_paths = []
         for path in self.paths:
@@ -153,6 +254,21 @@ class CriticalPathMethod(object):
         return filter(lambda critical_activity:
                       self.graph.edge[critical_activity[0]][critical_activity[1]]['normal_duration'] >
                       self.graph.edge[critical_activity[0]][critical_activity[1]]['crash_duration'], critical_path)
+
+    def _reduce_network_duration(self):
+        critical_activities = self.__get_critical_activities()
+        critical_paths = self.__get_critical_paths(critical_activities)
+        for critical_path in critical_paths:
+            critical_path = self.__remove_crashed_activities(critical_path)
+            if len(critical_path) > 0:
+                min_critical_activity = critical_path[0]
+                min_cost_slope = self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['cost_slope']
+                for critical_activity in critical_path[1:]:
+                    if self.graph.edge[critical_activity[0]][critical_activity[1]]['cost_slope'] < min_cost_slope:
+                        min_critical_activity = critical_activity
+                        min_cost_slope = self.graph.edge[critical_activity[0]][critical_activity[1]]['cost_slope']
+                self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['normal_duration'] -= 1
+                self.graph.edge[min_critical_activity[0]][min_critical_activity[1]]['normal_cost'] += min_cost_slope
 
     def __print_graph(self):
         # A method that helps with debugging the algorithm.
@@ -175,14 +291,39 @@ class CriticalPathMethod(object):
         self._calculate_cost_slope()
 
         self._solve_network(kw_duration='crash_duration')
-        crash_network_duration = self._get_network_duration()
+        crash_network_duration = self.__get_network_duration()
 
         while True:
             self._solve_network()
-            network_duration = self._get_network_duration()
 
+            self.graph.results = {
+                'project_duration': self.__get_network_duration(),
+                'critical_paths': self.__get_critical_paths(self.__get_critical_activities()),
+                'direct_cost': self.__get_direct_cost(),
+                'indirect_cost': self.__get_indirect_cost(),
+                'total_cost': self.__get_total_cost()
+            }
             self.snapshots.append(pickle.dumps(self.graph))
+
+            network_duration = self.__get_network_duration()
             self._reduce_network_duration()
 
             if not network_duration > crash_network_duration:
                 break
+
+    def get_results(self, images_dir):
+        """
+
+        Returns:
+            A list of dictionaries.
+        """
+        pos = None
+        images = []
+        results = []
+        for iteration, snapshot in enumerate(self.snapshots):
+            graph = pickle.loads(snapshot)
+            results.append(graph.results)
+            if iteration == 0:
+                pos = networkx.fruchterman_reingold_layout(graph)
+            images.append(draw_network(graph, pos, images_dir, iteration))
+        return results, images
