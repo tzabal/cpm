@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="results_table">
+    {{ results_table }}
+</div>
+<div id="images">
+    <h2>Network transformations throughout CPM</h2>
+    {% for image, iteration in images %}
+    <p>Network in its {{ iteration }} iteration:</p>
+    <img src="{{ url_for('static', filename='results/' + image) }}" alt="{{ image }}">
+    <hr>
+    {% endfor %}
+</div>
+{% endblock %}

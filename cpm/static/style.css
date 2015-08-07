@@ -1,0 +1,24 @@
+fieldset {
+    padding: 0 1em 1em 1em;
+}
+
+legend {
+    padding: 1em;
+}
+
+#results_table table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+#results_table table th {
+    padding: 0.2em 1em;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black
+}
+
+#results_table table td {
+    padding: 0.1em 1em;
+    border-right: 1px solid black;
+}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block body %}
+<form action="" method="post" enctype="multipart/form-data">
+    <fieldset>
+        <legend>CPM Project File</legend>
+        <label for="project_file">Project file:</label>
+        <input type="file" name="project_file" id="project_file">
+        <p><input type="submit" value="Upload and run CPM on this project"></p>
+    </fieldset>
+</form>
+{% if error %}
+<p><strong>Error</strong>: {{ error }}</p>
+{% endif %}
+{% endblock %}

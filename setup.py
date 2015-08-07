@@ -24,26 +24,25 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
+        'Environment :: Web Environment'
+        'Framework :: Flask'
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
-        'Operating System :: POSIX :: BSD :: FreeBSD',
+        'Operating System :: POSIX :: BSD',
     ],
     packages=['cpm'],
-    package_data = {
-        'cpm': ['templates/*.mako']
-    },
     install_requires=[
+        'Flask',
         'jsonschema',
-        'mako',
         'matplotlib',
         'networkx',
         'PrettyTable'
     ],
     entry_points={
         'console_scripts': [
-            'cpm = cpm.main:main',
+            'cpm = cpm.cli:main',
         ]
     }
 )
