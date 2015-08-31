@@ -54,7 +54,7 @@ def main():
 
     cpmnet = cpm.CriticalPathMethod(project)
     cpmnet.run_cpm()
-    results, images = cpmnet.get_results(images_dir)
+    results, images, optimum_solution = cpmnet.get_results(images_dir)
 
     results_table = prettytable.PrettyTable([
         "Project Duration", "Critical Path(s)", "Direct Cost", "Indirect Cost", "Total Cost"
@@ -65,6 +65,9 @@ def main():
             result['direct_cost'], result['indirect_cost'], result['total_cost']
         ])
     print results_table
+
+    print 'The optimum solution is {} for total cost and {} for project duration.'\
+        .format(optimum_solution[0], optimum_solution[1])
 
 if __name__ == '__main__':
     main()

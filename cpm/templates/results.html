@@ -1,13 +1,19 @@
 {% extends "base.html" %}
+{% block head %}
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}
 {% block body %}
 <div id="results_table">
     {{ results_table }}
 </div>
+<div id="optimum_total_cost" hidden>{{ optimum_total_cost }}</div>
+<div id="optimum_project_duration" hidden>{{ optimum_project_duration }}</div>
 <div id="images">
     <h2>Network transformations throughout CPM</h2>
     {% for image, iteration in images %}
     <p>Network in its {{ iteration }} iteration:</p>
-    <img src="{{ url_for('static', filename='results/' + image) }}" alt="{{ image }}">
+    <img src="{{ url_for('static', filename='results/' + image) + '?' + force_reload }}" alt="{{ image }}">
     <hr>
     {% endfor %}
 </div>

@@ -312,18 +312,29 @@ class CriticalPathMethod(object):
                 break
 
     def get_results(self, images_dir):
-        """
+        """Gathers the results of the CPM algorithm.
+
+        It gathers the results, images, and optimum solution as founded by the
+        CPM algorithm that run on the given project.
+
+        Args:
+            images_dir: a string, that represents the path that the images will be stored
 
         Returns:
-            A list of dictionaries.
+            A tuple of three objects. The first object is a list of dictionaries,
+            the second object is a list of strings, and the third object is a tuple
+            of two numbers.
         """
         pos = None
         images = []
         results = []
+        solutions = []
         for iteration, snapshot in enumerate(self.snapshots):
             graph = pickle.loads(snapshot)
             results.append(graph.results)
+            solutions.append((graph.results['total_cost'], graph.results['project_duration']))
             if iteration == 0:
                 pos = networkx.fruchterman_reingold_layout(graph)
             images.append(draw_network(graph, pos, images_dir, iteration))
-        return results, images
+        optimum_solution = min(solutions)
+        return results, images, optimum_solution

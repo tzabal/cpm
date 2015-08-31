@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+
 from flask import Flask
 from flask import Markup
 from flask import render_template
@@ -47,8 +49,13 @@ def index():
                 return render_template('index.html', error=exc)
             cpmnet = cpm.CriticalPathMethod(project)
             cpmnet.run_cpm()
-            results, images = cpmnet.get_results('static/results/')
-            return render_template('results.html', results_table=Markup(_get_html_results_table(results)), images=zip(images, range(0, len(images))))
+            results, images, optimum_solution = cpmnet.get_results('static/results/')
+            return render_template('results.html',
+                                   results_table=Markup(_get_html_results_table(results)),
+                                   images=zip(images, range(0, len(images))),
+                                   force_reload=str(time.time()),
+                                   optimum_total_cost=optimum_solution[0],
+                                   optimum_project_duration=optimum_solution[1])
         else:
             return render_template('index.html', error='No project file has been uploaded.')
 

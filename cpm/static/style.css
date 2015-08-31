@@ -22,3 +22,7 @@ legend {
     padding: 0.1em 1em;
     border-right: 1px solid black;
 }
+
+.optimum-solution {
+    background-color: yellow;
+}
