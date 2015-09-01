@@ -65,8 +65,10 @@ A nicely formatted ASCII table with the results is printed on the screen, along 
 Execute using the web interface
 ===============================
 
-In order to use the web interface, use the following command to start serving the application::
+In order to use the web interface, first create the directory that the set of generated images will be stored, change to the directory of the web.py module, and start serving the application::
 
-  python cpm/web.py
+  mkdir ~/venv-cpm/cpm/cpm/static/results
+  cd ~/venv-cpm/cpm/cpm
+  python web.py
 
-Open a web browser and visit the http://127.0.0.1:5000/ address.
+The web interface lives at the http://127.0.0.1:5000/ address.
